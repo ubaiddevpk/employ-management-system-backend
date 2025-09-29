@@ -16,7 +16,8 @@ connectDB();
 
 // Middlewares
 app.use(cors({
-  origin: "http://localhost:5173", // ✅ Your frontend local URL
+  origin: "https://employee-website-qlut.vercel.app",
+     // ✅ Your frontend local URL
   methods: ["GET", "POST", "PUT", "DELETE"], // Optional: allowed methods
   // credentials: true // Optional: if you need cookies/auth
 }));

@@ -15,11 +15,15 @@ const app = express();
 connectDB();
 
 // Middlewares
+const allowedOrigins = [
+  "https://employee-website-qlut.vercel.app",
+  "http://localhost:5173"
+];
+
 app.use(cors({
-  origin: "https://employee-website-qlut.vercel.app",
-     // ✅ Your frontend local URL
-  methods: ["GET", "POST", "PUT", "DELETE"], // Optional: allowed methods
-  // credentials: true // Optional: if you need cookies/auth
+  origin: allowedOrigins,
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
 }));
 app.use(express.json());
 

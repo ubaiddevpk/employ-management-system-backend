@@ -35,8 +35,8 @@ import { protect } from "../middlewares/authMiddleware.js";
 const router = express.Router();
 
 // Public Routes
-router.get("/", getEmployee); // Get all employees
-router.get("/:id", getSingleEmployee); // Get single employee
+router.get("/",protect, getEmployee); // Get all employees
+router.get("/:id", protect,getSingleEmployee); // Get single employee
 
 // Protected Routes (require login) - Remove protect temporarily for testing
 // router.post("/", addEmployee); // Add new employee

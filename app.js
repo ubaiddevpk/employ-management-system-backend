@@ -17,7 +17,8 @@ connectDB();
 // Middlewares
 const allowedOrigins = [
   "https://employee-website-qlut.vercel.app",
-  "http://localhost:5173"
+  "http://localhost:5173",
+  "https://alamalfadaapt.com"
 ];
 
 app.use(cors({

@@ -18,6 +18,7 @@ connectDB();
 const allowedOrigins = [
   "https://employee-website-qlut.vercel.app",
   "http://localhost:5173",
+  "http://alamalfadaapt.com",
   "https://alamalfadaapt.com"
 ];
 

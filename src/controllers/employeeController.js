@@ -1,39 +1,4 @@
-// import Employee from "../models/Employee.js";
 
-// // GET all employees
-// export const getEmployee = async (req,res)=>{
-//   const employees =await Employee.find();
-//   res.json(employees)
-// };
-
-// //Add new employ
-
-// export const addEmployee=async(req,res)=>{
-//   const employee=await Employee.create(req.body);
-//   res.status(201).json(employee);
-// }
-
-// export const updateEmployee = async (req, res) => {
-//   const updated = await Employee.findByIdAndUpdate(req.params.id, req.body, { new: true });
-//   if (!updated) {
-//     const error = new Error("Employee not found");
-//     error.statusCode = 404;
-//     throw error;
-//   }
-//   res.json(updated);
-// };
-
-// export const deleteEmployee = async (req, res) => {
-//   const deleted = await Employee.findByIdAndDelete(req.params.id);
-//   if (!deleted) {
-//     const error = new Error("Employee not found");
-//     error.statusCode = 404;
-//     throw error;
-//   }
-//   res.json({ message: "Employee deleted successfully" });
-// };
-
-// controllers/employeeController.js
 import Employee from "../models/Employee.js";
 
 // Get all employees
@@ -61,6 +26,7 @@ export const addEmployee = async (req, res) => {
       loans,
       cnic,
       joiningDate,
+      leavingDate,
       jobTitle,
       netSalary,
       remainingAdvance,
@@ -94,6 +60,7 @@ export const addEmployee = async (req, res) => {
       loans: loans || [],
       cnic,
       joiningDate,
+      leavingDate: leavingDate || null, // Add this line
       jobTitle,
       netSalary,
       remainingAdvance: calculatedRemainingAdvance,
@@ -124,6 +91,7 @@ export const updateEmployee = async (req, res) => {
       loans,
       cnic,
       joiningDate,
+      leavingDate, // Add this line
       jobTitle,
       netSalary,
       remainingAdvance,
@@ -167,6 +135,7 @@ export const updateEmployee = async (req, res) => {
         loans: loans || [],
         cnic,
         joiningDate,
+         leavingDate: leavingDate || null, // Add this line
         jobTitle,
         netSalary,
         remainingAdvance: calculatedRemainingAdvance,

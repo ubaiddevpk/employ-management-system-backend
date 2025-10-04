@@ -37,6 +37,7 @@ const employeeSchema = new mongoose.Schema(
     
     cnic: { type: String, required: true },
     joiningDate: { type: Date, required: true },
+    leavingDate: {type: Date}, //new leaving date
     jobTitle: { type: String, required: true },
     netSalary: { type: Number, required: true },
     

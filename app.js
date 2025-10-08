@@ -4,6 +4,7 @@ import cors from "cors";
 import employeeRoutes from "./src/routes/employeeRoutes.js";
 import userRoute from "./src/routes/userRoutes.js"
 import { errorHandler } from "./src/middlewares/errorMiddleware.js";
+import payrollRoutes from "./src/routes/payrollRoutes.js";
 
 import { connectDB } from "./src/config/db.js";
 
@@ -32,6 +33,7 @@ app.use(express.json());
  
 app.use("/api/users", userRoute);  
 app.use("/api/employees", employeeRoutes);
+app.use("/api/payroll", payrollRoutes);
 
 // Error Handling Middleware (must be last)
 app.use(errorHandler);

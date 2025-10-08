@@ -7,7 +7,7 @@
 // } from "../controllers/employeeController.js";
 // import { protect } from "../middlewares/authMiddleware.js";
 
-// const router = express.Router();
+// const router = express.Router();de
 
 // // Public Routes
 // router.get("/", getEmployee);
@@ -33,7 +33,7 @@ import {
 import { protect } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
-
+ 
 // Public Routes
 router.get("/",protect, getEmployee); // Get all employees
 router.get("/:id", protect,getSingleEmployee); // Get single employee
@@ -41,7 +41,7 @@ router.get("/:id", protect,getSingleEmployee); // Get single employee
 // Protected Routes (require login) - Remove protect temporarily for testing
 // router.post("/", addEmployee); // Add new employee
 // router.put("/:id", updateEmployee); // Update employee
-// router.delete("/:id", deleteEmployee); // Delete employee
+// router.delete("/:id", deleteEmployee); // Delete employeeu
 
 // When you're ready to add authentication back, uncomment these:
 router.post("/", protect, addEmployee);

@@ -42,36 +42,36 @@ export const getProfile = async (req, res) => {
 // @desc    Create new user
 // @route   POST /api/users
 // @access  Public (for now)
-// export const createUser = async (req, res) => {
-//   const { email, password } = req.body;
+export const createUser = async (req, res) => {
+  const { email, password } = req.body;
 
-//   try {
-//     // 1️⃣ Check if user already exists
-//     const userExists = await User.findOne({ email });
-//     if (userExists) {
-//       return res.status(400).json({ message: "User already exists" });
-//     }
+  try {
+    // 1️⃣ Check if user already exists
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+      return res.status(400).json({ message: "User already exists" });
+    }
 
-//     // 2️⃣ Create user (password will be hashed by schema pre-save hook)
-//     const user = await User.create({
-//       email,
-//       password,
-//     });
+    // 2️⃣ Create user (password will be hashed by schema pre-save hook)
+    const user = await User.create({
+      email,
+      password,
+    });
 
-//     if (user) {
-//       res.status(201).json({
-//         _id: user._id,
-//         email: user.email,
-//         token: generateToken(user._id), // optional: auto login after creation
-//       });
-//     } else {
-//       res.status(400).json({ message: "Invalid user data" });
-//     }
-//   } catch (error) {
-//     console.error("Create User Error:", error);
-//     res.status(500).json({ message: "Server error" });
-//   }
-// };
+    if (user) {
+      res.status(201).json({
+        _id: user._id,
+        email: user.email,
+        token: generateToken(user._id), // optional: auto login after creation
+      });
+    } else {
+      res.status(400).json({ message: "Invalid user data" });
+    }
+  } catch (error) {
+    console.error("Create User Error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 
 
 

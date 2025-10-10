@@ -9,6 +9,7 @@ import {
   recalculatePayroll,
   getYearlyPayroll
 } from "../controllers/payrollController.js";
+import { runSingleEmployeePayroll } from "../models/runSingleEmployeePayroll.js";
 import { protect } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
@@ -16,6 +17,7 @@ const router = express.Router();
 // @route   POST /api/payroll/run
 // @desc    Create a new payroll run
 router.post("/run",protect, createPayrollRun);
+router.post('/run-single', runSingleEmployeePayroll);
 
 // @route   GET /api/payroll/stats
 // @desc    Get payroll statistics

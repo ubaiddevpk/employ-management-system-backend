@@ -19,7 +19,12 @@ export const createPayrollRun = async (req, res) => {
     const dueDate = new Date(paymentDate);
     dueDate.setDate(dueDate.getDate() + 5);
 
-    const { notes, processedBy } = req.body;
+    // ✅ NEW: Get payrollType and selectedEmployeeIds from request
+    const { notes, processedBy, payrollType, selectedEmployeeIds } = req.body;
+
+    console.log('📋 Creating Payroll Run:');
+    console.log('   Payroll Type:', payrollType);
+    console.log('   Selected Employee IDs:', selectedEmployeeIds);
 
     // Check if payroll already exists
     const existingPayroll = await Payroll.findOne({ month, year });
@@ -30,19 +35,34 @@ export const createPayrollRun = async (req, res) => {
       });
     }
 
-    // Fetch active employees
-    const employees = await Employee.find({
+    // ✅ MODIFIED: Build query based on payroll type
+    let employeeQuery = {
       $or: [
         { leavingDate: { $exists: false } },
         { leavingDate: null },
         { leavingDate: { $gt: now } }
       ]
-    });
+    };
+
+    // ✅ NEW: If manual selection, filter by selected IDs
+    if (payrollType === 'manual' && selectedEmployeeIds && selectedEmployeeIds.length > 0) {
+      employeeQuery._id = { $in: selectedEmployeeIds };
+      console.log('   📌 Manual Selection: Filtering employees by IDs');
+    } else {
+      console.log('   📌 Auto Mode: Processing all active employees');
+    }
+
+    // Fetch employees based on query
+    const employees = await Employee.find(employeeQuery);
+
+    console.log(`   ✅ Found ${employees.length} employees to process`);
 
     if (employees.length === 0) {
       return res.status(404).json({
         success: false,
-        message: "No active employees found",
+        message: payrollType === 'manual' 
+          ? "No employees found for the selected IDs"
+          : "No active employees found",
       });
     }
 
@@ -53,13 +73,8 @@ export const createPayrollRun = async (req, res) => {
       const overtime = employee.overtime || 0;
       const grossSalary = basicSalary + commission + overtime;
 
-      // Use CURRENT remainingAmount for calculations
-      // const remainingAdvanceBefore = employee.remainingAdvance || 0;
-      // const remainingLoanBefore = employee.remainingLoan || 0;
-
       const remainingAdvanceBefore = employee.advances?.reduce((sum, adv) => sum + (adv.remainingAmount || 0), 0) || 0;
-const remainingLoanBefore = employee.loans?.reduce((sum, loan) => sum + (loan.remainingAmount || 0), 0) || 0;
-
+      const remainingLoanBefore = employee.loans?.reduce((sum, loan) => sum + (loan.remainingAmount || 0), 0) || 0;
 
       // Calculate this month's deductions
       let advanceDeduction = 0;
@@ -109,6 +124,7 @@ const remainingLoanBefore = employee.loans?.reduce((sum, loan) => sum + (loan.re
     const totalDeductions = payrollEmployees.reduce((sum, e) => sum + e.totalDeductions, 0);
     const totalNetPay = payrollEmployees.reduce((sum, e) => sum + e.netSalary, 0);
 
+    // ✅ NEW: Store payroll type and selected IDs
     const payroll = await Payroll.create({
       month,
       year,
@@ -123,15 +139,21 @@ const remainingLoanBefore = employee.loans?.reduce((sum, loan) => sum + (loan.re
       status: "DRAFT",
       notes,
       processedBy,
+      payrollType: payrollType || 'auto', // ✅ NEW: Store payroll type
+      selectedEmployeeIds: payrollType === 'manual' ? selectedEmployeeIds : undefined, // ✅ NEW: Store selected IDs
     });
+
+    console.log('   ✅ Payroll created successfully');
+    console.log(`   📊 Total Employees: ${payrollEmployees.length}`);
+    console.log(`   💰 Total Net Pay: ${totalNetPay}`);
 
     res.status(201).json({
       success: true,
-      message: "Payroll run created successfully",
+      message: `Payroll run created successfully (${payrollType === 'manual' ? 'Manual' : 'Auto'} mode)`,
       data: payroll,
     });
   } catch (error) {
-    console.error("Error creating payroll run:", error);
+    console.error("❌ Error creating payroll run:", error);
     res.status(500).json({
       success: false,
       message: "Error creating payroll run",
@@ -139,6 +161,7 @@ const remainingLoanBefore = employee.loans?.reduce((sum, loan) => sum + (loan.re
     });
   }
 };
+
 // @desc    Get all payroll runs
 // @route   GET /api/payroll
 // @access  Private
@@ -208,18 +231,6 @@ export const getPayrollById = async (req, res) => {
   }
 };
 
-// @desc    Update payroll status (mark as ready/paid)
-// @route   PUT /api/payroll/:id
-// @access  Private
-// @desc    Update payroll status (mark as ready/paid)
-// @route   PUT /api/payroll/:id
-// @access  Private
-// @desc    Update payroll status (mark as ready/paid)
-// @route   PUT /api/payroll/:id
-// @access  Private
-// @desc    Update payroll status (mark as ready/paid)
-// @route   PUT /api/payroll/:id
-// @access  Private
 // @desc    Update payroll status (mark as ready/paid)
 // @route   PUT /api/payroll/:id
 // @access  Private
@@ -345,7 +356,6 @@ export const updatePayrollStatus = async (req, res) => {
   }
 };
 
-
 // @desc    Delete payroll (only DRAFT status)
 // @route   DELETE /api/payroll/:id
 // @access  Private
@@ -442,9 +452,6 @@ export const getYearlyPayroll = async (req, res) => {
     });
   }
 };
-
-
-
 
 // @desc    Recalculate payroll (for DRAFT only)
 // @route   POST /api/payroll/:id/recalculate

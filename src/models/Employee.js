@@ -121,4 +121,48 @@ employeeSchema.pre("save", function (next) {
   next();
 });
 
+
+// ✅ PRE-UPDATE MIDDLEWARE: also auto-calculate on edit/update
+employeeSchema.pre("findOneAndUpdate", function (next) {
+  const update = this.getUpdate();
+
+  // If no advances or loans are being updated, skip recalculation
+  if (!update) return next();
+
+  // ✅ Handle advances recalculation
+  if (update.advances && Array.isArray(update.advances)) {
+    update.advances = update.advances.map((adv) => ({
+      ...adv,
+      remainingAmount:
+        adv.deduction && adv.deduction > 0
+          ? adv.amount - adv.deduction
+          : adv.amount,
+    }));
+    // Recalculate total remainingAdvance
+    update.remainingAdvance = update.advances.reduce(
+      (sum, adv) => sum + (adv.remainingAmount || 0),
+      0
+    );
+  }
+
+  // ✅ Handle loans recalculation
+  if (update.loans && Array.isArray(update.loans)) {
+    update.loans = update.loans.map((loan) => ({
+      ...loan,
+      remainingAmount:
+        loan.deduction && loan.deduction > 0
+          ? loan.amount - loan.deduction
+          : loan.amount,
+    }));
+    // Recalculate total remainingLoan
+    update.remainingLoan = update.loans.reduce(
+      (sum, loan) => sum + (loan.remainingAmount || 0),
+      0
+    );
+  }
+
+  next();
+});
+
+
 export default mongoose.model("Employee", employeeSchema);

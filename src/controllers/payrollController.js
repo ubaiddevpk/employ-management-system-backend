@@ -270,10 +270,9 @@ export const updatePayrollStatus = async (req, res) => {
             if (adv.remainingAmount > 0 && adv.deduction > 0) {
               const deductAmount = Math.min(adv.deduction, adv.remainingAmount);
               
-              console.log(`  Advance: ${adv.reason}, Before: ${adv.amount}, Deducting: ${deductAmount}`);
+              console.log(`  Advance: ${adv.reason}, Original: ${adv.amount}, Remaining: ${adv.remainingAmount}, Deducting: ${deductAmount}`);
               
-              // Update the amounts directly
-              adv.amount = adv.amount - deductAmount;
+              // Only update the remainingAmount, keep the original amount unchanged
               adv.remainingAmount = adv.remainingAmount - deductAmount;
             }
           }
@@ -299,10 +298,9 @@ export const updatePayrollStatus = async (req, res) => {
             if (loan.remainingAmount > 0 && loan.deduction > 0) {
               const deductAmount = Math.min(loan.deduction, loan.remainingAmount);
               
-              console.log(`  Loan: ${loan.reason}, Before: ${loan.amount}, Deducting: ${deductAmount}`);
+              console.log(`  Loan: ${loan.reason}, Original: ${loan.amount}, Remaining: ${loan.remainingAmount}, Deducting: ${deductAmount}`);
               
-              // Update the amounts directly
-              loan.amount = loan.amount - deductAmount;
+              // Only update the remainingAmount, keep the original amount unchanged
               loan.remainingAmount = loan.remainingAmount - deductAmount;
             }
           }
@@ -355,6 +353,13 @@ export const updatePayrollStatus = async (req, res) => {
     });
   }
 };
+
+// @desc    Update payroll status (mark as ready/paid)
+// @route   PUT /api/payroll/:id
+// @access  Private
+// @desc    Update payroll status (mark as ready/paid)
+
+
 
 // @desc    Delete payroll (only DRAFT status)
 // @route   DELETE /api/payroll/:id

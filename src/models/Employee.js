@@ -50,58 +50,26 @@ const employeeSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// ✅ ADD PRE-SAVE MIDDLEWARE to auto-calculate remainingAmount
-// employeeSchema.pre('save', function(next) {
-//   // Calculate remainingAmount for each advance if not set
-//   this.advances?.forEach(advance => {
-//     if (advance.remainingAmount === undefined || advance.remainingAmount === 0) {
-//       advance.remainingAmount = advance.amount;
-//     }
-//   });
-
-//   // Calculate remainingAmount for each loan if not set
-//   this.loans?.forEach(loan => {
-//     if (loan.remainingAmount === undefined || loan.remainingAmount === 0) {
-//       loan.remainingAmount = loan.amount;
-//     }
-//   });
-
-//   // Recalculate totals
-//   this.remainingAdvance = this.advances?.reduce(
-//     (sum, adv) => sum + (adv.remainingAmount || 0),
-//     0
-//   ) || 0;
-
-//   this.remainingLoan = this.loans?.reduce(
-//     (sum, loan) => sum + (loan.remainingAmount || 0),
-//     0
-//   ) || 0;
-
-//   next();
-// });
-
 
 // ✅ PRE-SAVE MIDDLEWARE to auto-calculate remainingAmount correctly
 employeeSchema.pre("save", function (next) {
   // ✅ Calculate remainingAmount for each advance
+  // remainingAmount should be the original amount minus any amounts already deducted
+  // The deduction field represents the monthly deduction amount, not total deducted
   if (this.advances && this.advances.length > 0) {
     this.advances = this.advances.map((adv) => ({
       ...adv,
-      remainingAmount:
-        adv.deduction && adv.deduction > 0
-          ? adv.amount - adv.deduction
-          : adv.amount,
+      remainingAmount: adv.remainingAmount !== undefined ? adv.remainingAmount : adv.amount, // Keep existing remainingAmount or use original amount
     }));
   }
 
   // ✅ Calculate remainingAmount for each loan
+  // remainingAmount should be the original amount minus any amounts already deducted
+  // The deduction field represents the monthly deduction amount, not total deducted
   if (this.loans && this.loans.length > 0) {
     this.loans = this.loans.map((loan) => ({
       ...loan,
-      remainingAmount:
-        loan.deduction && loan.deduction > 0
-          ? loan.amount - loan.deduction
-          : loan.amount,
+      remainingAmount: loan.remainingAmount !== undefined ? loan.remainingAmount : loan.amount, // Keep existing remainingAmount or use original amount
     }));
   }
 
@@ -130,13 +98,12 @@ employeeSchema.pre("findOneAndUpdate", function (next) {
   if (!update) return next();
 
   // ✅ Handle advances recalculation
+  // remainingAmount should be preserved or set to original amount if not provided
+  // The deduction field represents the monthly deduction amount, not total deducted
   if (update.advances && Array.isArray(update.advances)) {
     update.advances = update.advances.map((adv) => ({
       ...adv,
-      remainingAmount:
-        adv.deduction && adv.deduction > 0
-          ? adv.amount - adv.deduction
-          : adv.amount,
+      remainingAmount: adv.remainingAmount !== undefined ? adv.remainingAmount : adv.amount, // Keep existing remainingAmount or use original amount
     }));
     // Recalculate total remainingAdvance
     update.remainingAdvance = update.advances.reduce(
@@ -146,13 +113,12 @@ employeeSchema.pre("findOneAndUpdate", function (next) {
   }
 
   // ✅ Handle loans recalculation
+  // remainingAmount should be preserved or set to original amount if not provided
+  // The deduction field represents the monthly deduction amount, not total deducted
   if (update.loans && Array.isArray(update.loans)) {
     update.loans = update.loans.map((loan) => ({
       ...loan,
-      remainingAmount:
-        loan.deduction && loan.deduction > 0
-          ? loan.amount - loan.deduction
-          : loan.amount,
+      remainingAmount: loan.remainingAmount !== undefined ? loan.remainingAmount : loan.amount, // Keep existing remainingAmount or use original amount
     }));
     // Recalculate total remainingLoan
     update.remainingLoan = update.loans.reduce(
